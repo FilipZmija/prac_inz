@@ -77,7 +77,7 @@ tcpServer.on('connection',function(socket){
 
        console.log('received on tcp socket:'+data);
        
-       var  toSend=toString(data); 
+       var  toSend= data.toString(); 
        io.emit('data', toSend);
    })
    });
