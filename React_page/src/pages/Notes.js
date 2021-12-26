@@ -1,16 +1,16 @@
 import React from 'react';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import { Stack } from '@mui/material';
-import { Divider } from '@mui/material';
 import { Box } from '@mui/system';
-import { grid } from '@mui/system';
-import CircularSlider from '@fseehawer/react-circular-slider';
 import Slider from '@mui/material/Slider';
-
+import { Hook } from "../Hook";
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
+import { Button } from '@mui/material';
+var timeout;
 export default function Notes() {
 
+  const [name, setName] = Hook("name", "");
   function preventHorizontalKeyboardNavigation(event) {
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault();
@@ -23,12 +23,17 @@ export default function Notes() {
 
 
   const handleChange = (event, newValue) => {
-      console.log(newValue);
+    console.log(newValue);
   };
+
+  const { value } = 50;
 
   return (
     <div>
       <Container maxWidth="sm">
+      <FormGroup>
+      <FormControlLabel control={<Switch onChange={handleChange}/>} label="Label" />
+    </FormGroup>
       Angle of the panel vertically
       <Box sx={{ height: 300}}>     
       
@@ -55,12 +60,14 @@ export default function Notes() {
       <Box sx={{ width: 600}}> 
       <Slider
         aria-label="Temperature"
-        defaultValue={30}
         getAriaValueText={valuetext}
         valueLabelDisplay="auto"
         step={1}
         min={30}
         max={150}
+        defaultValue={100}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
         onChangeCommitted	={handleChange}
       />
       </Box>
