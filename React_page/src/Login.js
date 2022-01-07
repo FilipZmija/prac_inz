@@ -5,14 +5,20 @@ import Home from "./pages/Home";
 import { Redirect } from "react-router-dom";
 import { useEffect } from 'react';
 import { Navbar } from "react-bootstrap";
-
+var timeout;
 var logged=localStorage.getItem('logged');
+
+
+
+
 
 const handleRedirect = () => {
     return 
   };
 class Login extends Component {
+
     
+
     
   handleSubmit = (e) => {
     e.preventDefault();
@@ -31,7 +37,7 @@ class Login extends Component {
       alert("Successfully logged in");
       logged=1;
       localStorage.setItem("logged", logged);
-      window.location.href = "http://localhost:3000/Home";
+      window.location.href = "/Home";
       e.target.email.value = "";
       e.target.password.value = "";
       

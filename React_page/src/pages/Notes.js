@@ -7,9 +7,15 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import { Button } from '@mui/material';
+import { Socket } from 'socket.io-client';
+import socketIOClient from "socket.io-client";
+const url = "http://127.0.0.1:8090";
+const socket = socketIOClient(url);
 var timeout;
-export default function Notes() {
+var logged=localStorage.getItem('logged');
 
+export default function Notes() {
+  if (logged==0) window.location.href = "./";
   const [name, setName] = Hook("name", "");
   function preventHorizontalKeyboardNavigation(event) {
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
@@ -22,8 +28,23 @@ export default function Notes() {
   }
 
 
-  const handleChange = (event, newValue) => {
-    console.log(newValue);
+  const handleChangeH = (event, newValue) => {
+    console.log('H'+newValue);
+    socket.send('H'+newValue)
+  };
+
+  const handleChangeV = (event, newValue) => {
+    console.log('V'+newValue);
+    socket.send('V'+newValue);
+  };
+  const handleChangeT = (event, newValue) => {
+    if(newValue==true){
+    socket.send('MODE1');
+    console.log('MODE1');
+    }else if(newValue==false){
+      socket.send('MODE0');
+      console.log('MODE0');
+    }
   };
 
   const { value } = 50;
@@ -32,7 +53,7 @@ export default function Notes() {
     <div>
       <Container maxWidth="sm">
       <FormGroup>
-      <FormControlLabel control={<Switch onChange={handleChange}/>} label="Label" />
+      <FormControlLabel control={<Switch onChange={handleChangeT}/>} label="Manual control ON/OFF" />
     </FormGroup>
       Angle of the panel vertically
       <Box sx={{ height: 300}}>     
@@ -50,7 +71,7 @@ export default function Notes() {
         step={1}
         min={30}
         max={150}
-        onChangeCommitted	={handleChange}
+        onChangeCommitted	={handleChangeH}
       />
       
       </Box>
@@ -68,7 +89,7 @@ export default function Notes() {
         defaultValue={100}
         value={name}
         onChange={(e) => setName(e.target.value)}
-        onChangeCommitted	={handleChange}
+        onChangeCommitted	={handleChangeV}
       />
       </Box>
       </Container>

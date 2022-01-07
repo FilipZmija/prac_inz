@@ -19,9 +19,11 @@ var temK=localStorage.getItem('temK');
 var temA=localStorage.getItem('temA');
 var temE=localStorage.getItem('temE');
 var check=16;
+var logged=localStorage.getItem('logged');
+
 export default function Create() {
 
-
+  if (logged==0) window.location.href = "./";
 const handleChangeK = (newValue) => {
   timeout && clearTimeout(timeout);
   timeout = setTimeout(() => {
@@ -81,12 +83,12 @@ return temE;
 
 
       <Container>
+      
   <Stack direction="row"
   justifyContent="center"
   alignItems="center"
   spacing={8}>
-
-<Box component="span" sx={{ p: 2, border: 'solid grey',  gap: 3 }}>
+      <Box component="span" sx={{ p: 2, border: 'solid grey',  gap: 3 }}>
         <Stack
           direction="column-reverse"
           justifyContent="center"
@@ -94,38 +96,6 @@ return temE;
           spacing={2}
           >
           
-          <Button
-          onClick={() => socket.send('ON001')}
-          variant="contained">
-          ON/OFF</Button>
-          Manual heating in kitchen
-          <CircularSlider
-          label="Set temperature in kitchen"
-          width={250}
-          min={16}
-          max={28}
-          labelColor="#66c2ff"
-          progressColorFrom="#80ccff"
-          progressColorTo="#006bb3"
-          dataIndex={temK}
-          data={["16.0" , "16.5" , "17.0" , "17.5" , "18.0", "18.5" , "19.0" , "19.5", "20.0" , "20.5" , "21.0" , "21.5" , "22.0" , "22.5" , "23.0" , "23.5" , "24.0" , "24.5" , "25.0" , "25.5" , "26.0" , "26.5" , "27.0" , "27.5" , "28.0"]}
-          knobPosition="bottom"
-          appendToValue="°C"
-          labelBottom={true}
-          onChange={handleChangeK}
-        />
-        
-        </Stack>
-      </Box>
-
-        <Box component="span" sx={{ p: 2, border: 'solid grey',  gap: 3 }}>
-        <Stack
-          direction="column-reverse"
-          justifyContent="center"
-          alignItems="center"
-          spacing={2}
-          >
-
           <Button
           onClick={() => socket.send('ON003')}
           variant="contained">
@@ -137,16 +107,47 @@ return temE;
           min={16}
           max={28}
           labelColor="#66c2ff"
-          data={["16.0" , "16.5" , "17.0" , "17.5" , "18.0", "18.5" , "19.0" , "19.5", "20.0" , "20.5" , "21.0" , "21.5" , "22.0" , "22.5" , "23.0" , "23.5" , "24.0" , "24.5" , "25.0" , "25.5" , "26.0" , "26.5" , "27.0" , "27.5" , "28.0"]}
+          progressColorFrom="#80ccff"
+          progressColorTo="#006bb3"
           dataIndex={temE}
+          data={["16.0" , "16.5" , "17.0" , "17.5" , "18.0", "18.5" , "19.0" , "19.5", "20.0" , "20.5" , "21.0" , "21.5" , "22.0" , "22.5" , "23.0" , "23.5" , "24.0" , "24.5" , "25.0" , "25.5" , "26.0" , "26.5" , "27.0" , "27.5" , "28.0"]}
           knobPosition="bottom"
           appendToValue="°C"
           labelBottom={true}
           onChange={handleChangeE}
         />
+        
         </Stack>
       </Box>
 
+<Box component="span" sx={{ p: 2, border: 'solid grey',  gap: 3 }}>
+        <Stack
+          direction="column-reverse"
+          justifyContent="center"
+          alignItems="center"
+          spacing={2}
+          >
+
+          <Button
+          onClick={() => socket.send('ON001')}
+          variant="contained">
+          ON/OFF</Button>
+          Manual heating in bathroom
+          <CircularSlider
+          label="Set temperature in bathroom"
+          width={250}
+          min={16}
+          max={28}
+          labelColor="#66c2ff"
+          data={["16.0" , "16.5" , "17.0" , "17.5" , "18.0", "18.5" , "19.0" , "19.5", "20.0" , "20.5" , "21.0" , "21.5" , "22.0" , "22.5" , "23.0" , "23.5" , "24.0" , "24.5" , "25.0" , "25.5" , "26.0" , "26.5" , "27.0" , "27.5" , "28.0"]}
+          dataIndex={temA}
+          knobPosition="bottom"
+          appendToValue="°C"
+          labelBottom={true}
+          onChange={handleChangeA}
+        />
+        </Stack>
+      </Box>
       <Box component="span" sx={{ p: 2, border: 'solid grey',  gap: 3 }}>
         <Stack
           direction="column-reverse"
@@ -159,22 +160,25 @@ return temE;
           onClick={() => socket.send('ON002')}
           variant="contained">
           ON/OFF</Button>
-          Manual heating in bathroom
+          Manual heating in kitchen
           <CircularSlider
-          label="Set temperature in bathroom"
+          label="Set temperature in kitchen"
           width={250}
           min={16}
           max={28}
-          dataIndex={temA}
+          dataIndex={temK}
           labelColor="#66c2ff"
           data={["16.0" , "16.5" , "17.0" , "17.5" , "18.0", "18.5" , "19.0" , "19.5", "20.0" , "20.5" , "21.0" , "21.5" , "22.0" , "22.5" , "23.0" , "23.5" , "24.0" , "24.5" , "25.0" , "25.5" , "26.0" , "26.5" , "27.0" , "27.5" , "28.0"]}
           knobPosition="bottom"
           appendToValue="°C"
           labelBottom={true}
-          onChange={handleChangeA}
+          onChange={handleChangeK}
         />
         </Stack>
-      </Box>      
+      </Box> 
+           
+
+      
       </Stack>
       </Container>
     

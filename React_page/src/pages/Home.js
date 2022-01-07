@@ -14,15 +14,17 @@ import NavbarCollapse from "react-bootstrap/esm/NavbarCollapse";
 import { Navbar } from "react-bootstrap";
 import { Nav } from "react-bootstrap";
 import { NavDropdown } from "react-bootstrap"
+var logged=localStorage.getItem('logged');
+
 
 const url = "http://127.0.0.1:8090";
 const socket = socketIOClient(url);
-var msg1=localStorage.getItem('temCurrK');
-var msg2=localStorage.getItem('temCurrE');
-var msg3=localStorage.getItem('temCurrA');
+var msg1=localStorage.getItem('temCurrA');
+var msg2=localStorage.getItem('temCurrK');
+var msg3=localStorage.getItem('temCurrE');
 
 export default function Home() {
-
+    if (logged==0) window.location.href = "./";
 
     return (
         <Container>
@@ -60,7 +62,7 @@ export default function Home() {
         
         </PopsKitchen>  
         <Typography variant="h6" component="h2">
-        <div id="temCurrK">{msg1}°C</div> 
+        <div id="temCurrK">{msg2}°C</div> 
         </Typography>
         </Stack>
     </Box>  
@@ -83,7 +85,7 @@ export default function Home() {
         
         </PopsBedroom>   
         <Typography variant="h6" component="h2">
-        <div>{msg2}°C</div>
+        <div>{msg3}°C</div>
         </Typography>
         </Stack>
     </Box>
@@ -106,7 +108,7 @@ export default function Home() {
         
         </PopsBathroom>   
         <Typography variant="h6" component="h2">
-        <div>{msg3}°C</div>
+        <div>{msg1}°C</div>
         </Typography>
         </Stack>
     </Box>

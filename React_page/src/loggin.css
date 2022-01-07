@@ -78,17 +78,17 @@ button {
   font-size: 18px;
   font-weight: bold;
   letter-spacing: 1px;
-  max-width: 420px;
+  max-width: 210px;
   outline: 0;
   padding: 10px 0;
   transition: background 0.3s;
   width: 80%;
 }
 button.primary {
-  background: #f58733;
+  background: #2495ff;
 }
 button.primary:hover {
-  background: #ea6c0b;
+  background: #055d97;
 }
 button.secondary {
   background: #c1d7aa;
@@ -96,6 +96,3 @@ button.secondary {
 button.secondary:hover {
   background: #a8c787;
 }
-body.homepage #page-header-wrapper {
-  display: none !important;
- }
