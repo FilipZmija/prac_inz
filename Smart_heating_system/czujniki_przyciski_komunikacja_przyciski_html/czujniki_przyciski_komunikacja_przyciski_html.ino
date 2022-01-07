@@ -13,9 +13,10 @@
 #define servoXpin 5
 #define servoYpin 6
 //definicja pinów dla wyjść ogrzewania
-#define kitchenHeating 7
-#define bathroomHeating 8
-#define bedroomHeating 9
+#define bedroomHeating 7
+#define kitchenHeating 8
+#define bathroomHeating 9
+
 //definicja pinów dla fotorezystorów
 #define bottomRightPin A0
 #define topRightPin A1
@@ -32,16 +33,17 @@ byte mac[] = {
 IPAddress ip(192,168,137,177);
 
 // adres IP serwera NODE.js
-
 IPAddress server(192,168,137,1);
 OneWire oneWire(readTemp);
 DallasTemperature sensors(&oneWire);
 
+//zmienne przechowujące czas
 unsigned long currentTime = 0;
 unsigned long previousTime = 0;
 unsigned long timeDiff = 0;
 unsigned long previousTime2 = 0;
 unsigned long timeDiff2 = 0;
+
 //inicjuje klienta ethernet
 EthernetClient client;
 
@@ -55,22 +57,23 @@ const int servoYtop = 130;
 const int servoYbottom = 50;
 int servoYcurr=0;
 float setTemperature[]={20, 25, 20};// ustawione temperatury w pokojach
+boolean trackerMode=0;
 
 void setup() {
   //rozpocznij komunikacje Ethernet i serial
   Ethernet.begin(mac, ip);
   Serial.begin(9600);
+  
   //delay potrzebny na czas inicjacji
-
   //informuj o statusie połączenia
   Serial.println("Connecting, please wait.");
   delay(10000);
-  if (client.connect(server, 1337)) { // port na którym działa serwer i odbiera dane od Arduino
-   Serial.println("Connection successful");
+  if (client.connect(server, 1337)){ // port na którym działa serwer i odbiera dane od Arduino
+    Serial.println("Connection successful");
   } 
-   else {
+  else{
     Serial.println("Connection failed");
-    } 
+  } 
   
   //nadaje tryb pracy pinom oraz ustawiam ich początkowe wartości
   pinMode(kitchenHeating, OUTPUT);
@@ -92,6 +95,7 @@ void setup() {
   servoY.write(85);
 }
 
+//definicja zmiennych obsługujących przyciski i elementy grzewcze
         int buttonsRead[]={kitchenButton, bathroomButton, bedroomButton};
         boolean previousStateKitchen=0;
         boolean previousStateBathroom=0;
@@ -110,6 +114,7 @@ void setup() {
 
         boolean currentManual[]={0,0,0};
         boolean previousManual[]={0,0,0};
+        
 //Funkcja debouncing w celu redukcji drgań na przyciskach rzeczywistych 
 boolean button(boolean previous, int buttonPin){
   boolean current=digitalRead(buttonPin);
@@ -121,21 +126,27 @@ boolean button(boolean previous, int buttonPin){
   }
 
 void loop() {
+  //wpisanie czasu od restartu urządzenia do zmiennej
         currentTime=millis();
         timeDiff=currentTime-previousTime;
         timeDiff2=currentTime-previousTime2;
+        //definicja zmiennych pomocniczych
+        int n=5;
+        int m=3;
+        //definicja zmiennych przechowujących temperature
         float temperatureBathroom;
         float temperatureKitchen;
         float temperatureBedroom;
-        int n=5;
-        int m=3;
-        int heatingDevices[3]={kitchenHeating, bathroomHeating, bedroomHeating};
-        int buttons[3]={kitchenButton,bathroomButton, bedroomButton};
         float temperatureI;
         float temperature[n]; // tablica przechowujace obecna temperature
-        float heating[n]; //tablica pomocnicza do sterowania wyjsciami dla elementów grzewczych
-        char *CurrentTemp[]={ "Current temperature in Kitchen: ", "Current temperature in Bathroom: ", "Current temperature in Bedroom: "};
         
+        
+        //wpisanie numerów pinów do tablicy zmiennych
+        int heatingDevices[3]={kitchenHeating, bathroomHeating, bedroomHeating};
+        int buttons[3]={kitchenButton,bathroomButton, bedroomButton};
+        float heating[n]; //tablica pomocnicza do sterowania wyjsciami dla elementów grzewczych
+        char *CurrentTemp[]={"Current temperature in Bathroom: ", "Current temperature in Kitchen: ", "Current temperature in Bedroom: ", };
+        //zmienne dodatkowe używane w procesie tworzenia porgramu
         int piec;//on or off
         int petla;
         byte addr[8];
@@ -151,16 +162,15 @@ void loop() {
         int topRight = 2.3*analogRead(topRightPin);
         int botRight = 2.3*analogRead(bottomRightPin);
 
-        int avgtop = (topLeft + topRight) / 2;   // średnia arytm. z pomiarów górnych fotorezystorów
-        int avgbot = (botLeft + botRight) / 2;   // średnia arytm. z pomiarów dolnych fotorezystorów
-        int avgleft = (topLeft + botLeft) / 2;  // średnia arytm. z pomiarów lewych fotorezystorów
-        int avgright = (topRight + botRight) / 2; // średnia arytm. z pomiarów prawych fotorezystorów
+        int aTop = (topLeft + topRight) / 2;   // średnia arytm. z pomiarów górnych fotorezystorów
+        int aBot = (botLeft + botRight) / 2;   // średnia arytm. z pomiarów dolnych fotorezystorów
+        int aLeft = (topLeft + botLeft) / 2;  // średnia arytm. z pomiarów lewych fotorezystorów
+        int aRight = (topRight + botRight) / 2; // średnia arytm. z pomiarów prawych fotorezystorów
 
-        
+        //funkcja wywoływana co ~30s, odczytuje wartości temperatury z czujników
        if(timeDiff>=30000UL){
         sensors.requestTemperatures();
-        for(int i=0; i<m; i=i+1)
-        {
+        for(int i=0; i<m; i=i+1){
           
           
           temperature[i] = sensors.getTempCByIndex(i);
@@ -172,16 +182,15 @@ void loop() {
           Serial.print(CurrentTemp[i]);
           Serial.print("  " );
           Serial.println(temperature[i]);      
+          //wysłanie temperatury do serwera
           client.print(String(round(temperature[i])));          
-      } 
+        } 
         previousTime=currentTime;
-       
-        }
+       }
 
          
           
         //mechaniczne uruchomienie ogrzewania
-
         //sprawdzenie zgodności temperatury z ustawioną lub stanu przycisków i ustawienie wyjść cyfrowych
         for (int i=0; i<m; i=i+1)
         {       
@@ -213,53 +222,53 @@ void loop() {
           }
           
         }
-        //obsłouga serw 
-        if(abs(avgtop - avgbot) > 20) {
+        //obsłouga serw
+   if(trackerMode=0){
+       if(abs(aTop - aBot) > 20) {
+         if (aTop > aBot) {
+           servoY.write(servoYcurr+1);
+           if (servoYcurr > servoYtop) { 
+             servoYcurr = servoYtop;
+             servoY.write(servoYcurr);
+           }
+         }
+         else if (aTop < aBot) {
+          servoY.write(servoYcurr-1);
+          if (servoYcurr < servoYbottom) {
+            servoYcurr = servoYbottom;
+            servoY.write(servoYcurr);
+          }
+         }
+         else{
+          servoYcurr=servoYcurr;
+          servoY.write(servoYcurr);
+         }
+         delay(50);
+        }
 
-    if (avgtop > avgbot) {
-      servoY.write(servoYcurr+1);
-      if (servoYcurr > servoYtop) { 
-        servoYcurr = servoYtop;
-        servoY.write(servoYcurr);
+    if(abs(aLeft - aRight) > 20) {
+      if (aRight > aLeft) {
+        servoX.write(servoXcurr+1);
+        if (servoXcurr > servoXtop) {
+          servoXcurr = servoXtop;
+          servoX.write(servoXcurr);
+        }
       }
-    }
-    else if (avgtop < avgbot) {
-      servoY.write(servoYcurr-1);
-      if (servoYcurr < servoYbottom) {
-        servoYcurr = servoYbottom;
-        servoY.write(servoYcurr);
+      else if (aRight < aLeft) {
+        servoX.write(servoXcurr-1);
+        if (servoXcurr < servoXbottom) {
+          servoXcurr = servoXbottom;
+          servoX.write(servoXcurr);
+        }
       }
-    }
-    else {
-      servoYcurr=servoYcurr;
-      servoY.write(servoYcurr);
-    }
-    delay(50);
-  }
-
-  if(abs(avgleft - avgright) > 20) {
-    if (avgright > avgleft) {
-      servoX.write(servoXcurr+1);
-      if (servoXcurr > servoXtop) {
-        servoXcurr = servoXtop;
+      else {
+        servoXcurr=servoXcurr;
         servoX.write(servoXcurr);
       }
+      delay(50);
     }
-    else if (avgright < avgleft) {
-      servoX.write(servoXcurr-1);
-      if (servoXcurr < servoXbottom) {
-        servoXcurr = servoXbottom;
-        servoX.write(servoXcurr);
-      }
-    }
-    else {
-      servoXcurr=servoXcurr;
-      servoX.write(servoXcurr);
-    }
-    delay(50);
   }
-
-//obdiór poleceń z serwera/apki webowej
+//obdiór poleceń z serwera i ich przetworzenie
 char c;
 char paczkaClient[200];
 String DoSo;
@@ -281,7 +290,7 @@ String DoSo;
         
 
        
-         // turning heating on via webpage 
+         //włączenie ogrzewania na podstawie informacji z serwera
           if (whatToDo == "ON001") {
               currentManual[0]=1; 
               
@@ -289,36 +298,53 @@ String DoSo;
               currentManual[0]=0;
             }
 
-            if (whatToDo == "ON003") {
+            if (whatToDo == "ON002") {
               currentManual[1]=1; 
               
           }else{
               currentManual[1]=0;
             }
             
-            if (whatToDo == "ON002") {
+            if (whatToDo == "ON003") {
               currentManual[2]=1; 
              
           }else{
               currentManual[2]=0;
             }
-
+        //zmiana oczekiwanej temperatury dla każdego z pomieszczeń w zależności od informacji z serwera
         String whatToDo2 = String(whatToDo.charAt(0));
         Serial.print(whatToDo2);
         char setTemp[]={paczkaClient[1], paczkaClient[2], paczkaClient[3], paczkaClient[4]};
         if (whatToDo2 == "K") {
-            setTemperature[0]=atof(setTemp);
-        }
-
-        if (whatToDo2 == "E") {
-
             setTemperature[1]=atof(setTemp);
         }
 
         if (whatToDo2 == "A") {
+
+            setTemperature[0]=atof(setTemp);
+        }
+
+        if (whatToDo2 == "E") {
             setTemperature[2]=atof(setTemp);
         }
-            
-        whatToDo = " ";
+        
+        if (whatToDo == "MODE0") {
+          trackerMode=0;
+        }else if(whatToDo == "MODE1"){
+          trackerMode=1;
+        }
+        char setAngle[]={paczkaClient[1], paczkaClient[2], paczkaClient[3]};
+       if(trackerMode=1){          
+        //poruszenie serwem
+        
+          if (whatToDo2 == "H") {
+           servoX.write(atof(setAngle));
+          }
+
+          if (whatToDo2 == "V") {
+           servoX.write(atof(setAngle));
+          }
+       }
+       whatToDo = " ";
   }
 }
